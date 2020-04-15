@@ -38,19 +38,19 @@ docker run -d --name jaeger \
 Next start Service B:
 
 ```
-sbt serverB/start
+sbt serverB/run
 ```
 
 Then in another terminal window, start Service A:
 
 ```
-sbt serverA/start
+sbt serverA/run
 ```
 
 Finally start the client application:
 
 ```
-sbt client/start
+sbt client/run
 ```
 
 Enter your name when prompted. The client will send a request (actually a few
