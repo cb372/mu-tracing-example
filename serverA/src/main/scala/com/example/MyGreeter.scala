@@ -18,6 +18,15 @@ class MyGreeter[F[_]: MonadError[*[_], Throwable]: Timer: Trace](happinessClient
       happinessResp  <- happinessClient.CheckHappiness(HappinessRequest())
     } yield HelloResponse(s"Hello, streaming ${lastReq.name}!", happinessResp.happy)
 
+  def ServerStreaming(req: HelloRequest): F[Stream[F, HelloResponse]] =
+    happinessClient.CheckHappiness(HappinessRequest()).map { happinessResp =>
+      Stream(
+        HelloResponse(s"Hello, ${req.name}!", happinessResp.happy),
+        HelloResponse(s"Hi again, ${req.name}!", happinessResp.happy)
+      ).covary[F]
+    }
+
+
   def SayHello(req: HelloRequest): F[HelloResponse] =
     for {
       cachedGreeting <- lookupGreetingInCache(req.name)

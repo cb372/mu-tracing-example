@@ -42,16 +42,19 @@ object Client extends IOApp {
           entrypointResource.use { ep =>
             // Send a few requests just to warm up the JVM.
             // The traces for the first couple of requests will look really slow.
-            sendUnaryRequest(client, ep, name) >>
-            sendUnaryRequest(client, ep, name) >>
-            sendUnaryRequest(client, ep, name) >>
-            sendUnaryRequest(client, ep, name) >>
-            sendUnaryRequest(client, ep, name)
+            //sendUnaryRequest(client, ep, name) >>
+            //sendUnaryRequest(client, ep, name) >>
+            //sendUnaryRequest(client, ep, name) >>
+            //sendUnaryRequest(client, ep, name) >>
+            //sendUnaryRequest(client, ep, name)
 
             // To try a client-streaming call, comment out the lines above
             // and uncomment the line below
 
             //sendClientStreamingRequest(client, ep, name)
+
+            // Or try a server-streaming call:
+            sendServerStreamingRequest(client, ep, name)
           }
         }
       serverMood = if (response.happy) "happy" else "unhappy"
@@ -77,9 +80,19 @@ object Client extends IOApp {
       HelloRequest(name)
     )
 
-    ep.root("Client application root span (client streaming call)").use { span =>
+    ep.root("Client application root span (client-streaming call)").use { span =>
       client.ClientStreaming(stream).run(span)
     }
   }
+
+  def sendServerStreamingRequest(
+    client: Greeter[Kleisli[IO, Span[IO], *]],
+    ep: EntryPoint[IO],
+    name: String
+  ): IO[HelloResponse] =
+    ep.root("Client application root span (server-streaming call)").use { span =>
+      client.ServerStreaming(HelloRequest(name)).run(span)
+        .flatMap(_.compile.lastOrError.run(span))
+    }
 
 }
