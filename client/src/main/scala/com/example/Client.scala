@@ -55,6 +55,9 @@ object Client extends IOApp {
 
             // Or try a server-streaming call:
             sendServerStreamingRequest(client, ep, name)
+
+            // Or a bidirectional streaming call:
+            sendBidirectionalStreamingRequest(client, ep, name)
           }
         }
       serverMood = if (response.happy) "happy" else "unhappy"
@@ -94,5 +97,21 @@ object Client extends IOApp {
       client.ServerStreaming(HelloRequest(name)).run(span)
         .flatMap(_.compile.lastOrError.run(span))
     }
+
+  def sendBidirectionalStreamingRequest(
+    client: Greeter[Kleisli[IO, Span[IO], *]],
+    ep: EntryPoint[IO],
+    name: String
+  ): IO[HelloResponse] = {
+    val stream = Stream[Kleisli[IO, Span[IO], *], HelloRequest](
+      HelloRequest(name),
+      HelloRequest(name)
+    )
+
+    ep.root("Client application root span (bidirectional-streaming call)").use { span =>
+      client.BidirectionalStreaming(stream).run(span)
+        .flatMap(_.compile.lastOrError.run(span))
+    }
+  }
 
 }

@@ -26,6 +26,10 @@ class MyGreeter[F[_]: MonadError[*[_], Throwable]: Timer: Trace](happinessClient
       ).covary[F]
     }
 
+  def BidirectionalStreaming(req: Stream[F, HelloRequest]): F[Stream[F, HelloResponse]] =
+    happinessClient.CheckHappiness(HappinessRequest()).map { happinessResp =>
+      req.map(r => HelloResponse(s"Hello, bidirectional ${r.name}!", happinessResp.happy))
+    }
 
   def SayHello(req: HelloRequest): F[HelloResponse] =
     for {
