@@ -42,11 +42,11 @@ object Client extends IOApp {
           entrypointResource.use { ep =>
             // Send a few requests just to warm up the JVM.
             // The traces for the first couple of requests will look really slow.
-            //sendUnaryRequest(client, ep, name) >>
-            //sendUnaryRequest(client, ep, name) >>
-            //sendUnaryRequest(client, ep, name) >>
-            //sendUnaryRequest(client, ep, name) >>
-            //sendUnaryRequest(client, ep, name)
+            sendUnaryRequest(client, ep, name) >>
+            sendUnaryRequest(client, ep, name) >>
+            sendUnaryRequest(client, ep, name) >>
+            sendUnaryRequest(client, ep, name) >>
+            sendUnaryRequest(client, ep, name)
 
             // To try a client-streaming call, comment out the lines above
             // and uncomment the line below
@@ -54,10 +54,10 @@ object Client extends IOApp {
             //sendClientStreamingRequest(client, ep, name)
 
             // Or try a server-streaming call:
-            sendServerStreamingRequest(client, ep, name)
+            //sendServerStreamingRequest(client, ep, name)
 
             // Or a bidirectional streaming call:
-            sendBidirectionalStreamingRequest(client, ep, name)
+            //sendBidirectionalStreamingRequest(client, ep, name)
           }
         }
       serverMood = if (response.happy) "happy" else "unhappy"
