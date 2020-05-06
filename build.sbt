@@ -33,7 +33,7 @@ val macroSettings: Seq[Setting[_]] = {
   )
 }
 
-val muVersion = "0.21.4-SNAPSHOT"
+val muVersion = "0.22.0"
 
 val protocol = project
   .settings(
@@ -41,7 +41,7 @@ val protocol = project
 
     libraryDependencies ++= Seq(
       // Needed for the generated code to compile
-      "io.higherkindness" %% "mu-rpc-channel" % muVersion,
+      "io.higherkindness" %% "mu-rpc-service" % muVersion,
       "io.higherkindness" %% "mu-rpc-fs2" % muVersion
     ),
 
@@ -59,7 +59,7 @@ val client = project
     name := "mu-tracing-example-rpc-client",
 
     libraryDependencies ++= Seq(
-      "io.higherkindness" %% "mu-rpc-netty" % muVersion,
+      "io.higherkindness" %% "mu-rpc-client-netty" % muVersion,
       "dev.profunktor" %% "console4cats" % "0.8.1",
       "org.tpolecat" %% "natchez-jaeger" % "0.0.11",
       "org.slf4j" % "slf4j-simple" % "1.7.30"
@@ -73,12 +73,15 @@ val serverA = project
 
     libraryDependencies ++= Seq(
       "io.higherkindness" %% "mu-rpc-server" % muVersion,
-      "io.higherkindness" %% "mu-rpc-netty" % muVersion,
+      "io.higherkindness" %% "mu-rpc-client-netty" % muVersion,
       "org.tpolecat" %% "natchez-jaeger" % "0.0.11",
       "org.slf4j" % "slf4j-simple" % "1.7.30"
-    ).map(_.exclude("org.slf4j", "slf4j-jdk14"))
+    ).map(_.exclude("org.slf4j", "slf4j-jdk14")),
+
+    // Start the server in a separate process so it shuts down cleanly when you hit Ctrl-C
+    fork := true
   )
-  .dependsOn(protocol, client)
+  .dependsOn(protocol)
 
 val serverB = project
   .settings(
@@ -88,7 +91,10 @@ val serverB = project
       "io.higherkindness" %% "mu-rpc-server" % muVersion,
       "org.tpolecat" %% "natchez-jaeger" % "0.0.11",
       "org.slf4j" % "slf4j-simple" % "1.7.30"
-    ).map(_.exclude("org.slf4j", "slf4j-jdk14"))
+    ).map(_.exclude("org.slf4j", "slf4j-jdk14")),
+
+    // Start the server in a separate process so it shuts down cleanly when you hit Ctrl-C
+    fork := true
   )
   .dependsOn(protocol)
 
